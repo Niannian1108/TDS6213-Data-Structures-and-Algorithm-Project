@@ -5,6 +5,9 @@
 #include <fstream>
 #include <cstring>
 
+// Forward declaration
+class manageDoctors;
+
 //stores patient information
 struct Patient
 {
@@ -16,7 +19,7 @@ struct Patient
     Patient* next;  //pointer to next pt in the list
 
     //constructor for initialising pt data
-    Patient() : id(0), age(0),next(nullptr)
+    Patient() : id(0), age(0), next(nullptr)
     {
         name[0] = '\0';
         contact[0] = '\0';
@@ -39,15 +42,19 @@ struct BSTNode
 //manages pt records
 class managePatients
 {
+    // Declare manageDoctors as a friend class
+    friend class manageDoctors;
+
 private:
     Patient* head;
     BSTNode* root;
 
     //functions to help with the bst op
-    void insertBST(BSTNode*& node, Patient*patient);
-    BSTNode*searchBST(BSTNode* node, int id);
-    void deleteBST(BSTNode*& node,int id);
+    void insertBST(BSTNode*& node, Patient* patient);
+    BSTNode* searchBST(BSTNode* node, int id);
+    void deleteBST(BSTNode*& node, int id);
     void cleanBST(BSTNode* node);     //cleans bst memory, unnecessary data
+    void quickSort(Patient* start, Patient* end); // Add this for the new sorting method
 
 public:
     managePatients();
