@@ -365,49 +365,81 @@ BSTNode* managePatients::searchBST(BSTNode* node, int id)
     return searchBST(node->right, id);
 }
 
-void managePatients::sortPatients()
-{
-    if(!head || !head->next) return;
+// Replace the existing sortPatients() in patient.cpp with this implementation:
 
-    bool swapped;
-    Patient* ptr1;
-    Patient* lptr = nullptr;
+void managePatients::quickSort(Patient* start, Patient* end) {
+    if (start == end || start == nullptr || end == nullptr || start == end->next)
+        return;
 
-    do
-    {
-        swapped = false;
-        ptr1 = head;
+    // Choose pivot as last element
+    Patient* pivot = end;
+    Patient* current = start;
+    Patient* tail = start;
 
-        while (ptr1->next!= lptr)
-        {
-            if(ptr1->id > ptr1->next ->id)
-            {
-                //swapping
-                std::swap(ptr1->id, ptr1->next->id);
-                std::swap(ptr1->age, ptr1 ->next->age);
+    while (current != end) {
+        if (current->id < pivot->id) {
+            // Swap current and tail if needed
+            if (current != tail) {
+                std::swap(current->id, tail->id);
+                std::swap(current->age, tail->age);
 
                 char temp[100];
-                strcpy( temp, ptr1-> name);
-                strcpy(ptr1->name, ptr1->next ->name);
-                strcpy(ptr1->next->name, temp);
+                strcpy(temp, current->name);
+                strcpy(current->name, tail->name);
+                strcpy(tail->name, temp);
 
-                strcpy(temp, ptr1->contact);
-                strcpy(ptr1-> contact, ptr1-> next->contact);
-                strcpy(ptr1->next->contact, temp);
+                strcpy(temp, current->contact);
+                strcpy(current->contact, tail->contact);
+                strcpy(tail->contact, temp);
 
-                strcpy(temp, ptr1->diagnosis);
-                strcpy(ptr1->diagnosis, ptr1->next->diagnosis);
-                strcpy(ptr1->next->diagnosis, temp);
-
-                swapped = true;
+                strcpy(temp, current->diagnosis);
+                strcpy(current->diagnosis, tail->diagnosis);
+                strcpy(tail->diagnosis, temp);
             }
-            ptr1 = ptr1->next;
+            tail = tail->next;
         }
-        lptr = ptr1;
+        current = current->next;
     }
-    while (swapped);
+
+    // Place pivot in correct position
+    if (tail != pivot) {
+        std::swap(tail->id, pivot->id);
+        std::swap(tail->age, pivot->age);
+
+        char temp[100];
+        strcpy(temp, tail->name);
+        strcpy(tail->name, pivot->name);
+        strcpy(pivot->name, temp);
+
+        strcpy(temp, tail->contact);
+        strcpy(tail->contact, pivot->contact);
+        strcpy(pivot->contact, temp);
+
+        strcpy(temp, tail->diagnosis);
+        strcpy(tail->diagnosis, pivot->diagnosis);
+        strcpy(pivot->diagnosis, temp);
+    }
+
+    // Recursively sort sub-lists
+    if (start != tail)
+        quickSort(start, tail);
+    if (tail->next != end)
+        quickSort(tail->next, end);
 }
 
+void managePatients::sortPatients() {
+    if (!head || !head->next) return;
+
+    // Find last node
+    Patient* last = head;
+    while (last->next != nullptr) {
+        last = last->next;
+    }
+
+    // Call quickSort
+    quickSort(head, last);
+    std::cout << "Patients sorted successfully using QuickSort!\n";
+}
 void managePatients::saveToFile()
 {
     std::ofstream file("patients.txt");
