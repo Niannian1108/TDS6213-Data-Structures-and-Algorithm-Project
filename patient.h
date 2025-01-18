@@ -1,66 +1,55 @@
 #ifndef PATIENT_H
 #define PATIENT_H
 
-#include <iostream>
-#include <fstream>
+#include <stdio.h>
 #include <cstring>
+#include <cctype>
 
 // Forward declaration
 class manageDoctors;
 
-//stores patient information
-struct Patient
-{
+struct Patient {
     int id;
     char name[50];
     int age;
     char contact[15];
     char diagnosis[100];
-    Patient* next;  //pointer to next pt in the list
+    Patient* next;
 
-    //constructor for initialising pt data
-    Patient() : id(0), age(0), next(nullptr)
-    {
+    Patient() : id(0), age(0), next(nullptr) {
         name[0] = '\0';
         contact[0] = '\0';
         diagnosis[0] = '\0';
     }
 };
 
-//binary search tree node structure for ID-based searching
-//each node points to one data
-struct BSTNode
-{
+struct BSTNode {
     Patient* patientData;
     BSTNode* left;
     BSTNode* right;
 
-    //creats new node
     BSTNode(Patient* patient) : patientData(patient), left(nullptr), right(nullptr) {}
 };
 
-//manages pt records
-class managePatients
-{
-    // Declare manageDoctors as a friend class
+class managePatients {
     friend class manageDoctors;
 
 private:
     Patient* head;
     BSTNode* root;
 
-    //functions to help with the bst op
     void insertBST(BSTNode*& node, Patient* patient);
     BSTNode* searchBST(BSTNode* node, int id);
     void deleteBST(BSTNode*& node, int id);
-    void cleanBST(BSTNode* node);     //cleans bst memory, unnecessary data
-    void quickSort(Patient* start, Patient* end); // Add this for the new sorting method
+    void cleanBST(BSTNode* node);
+    void quickSort(Patient* start, Patient* end);
 
 public:
     managePatients();
-    ~managePatients();      //constructor and destructot
+    ~managePatients();
+    managePatients(const managePatients& other) = delete;
+    managePatients& operator=(const managePatients& other) = delete;
 
-    //create read update and delete operations
     void addPatient();
     void editPatient();
     void deletePatient();
@@ -68,12 +57,9 @@ public:
     void displayAllPatients();
     void sortPatients();
 
-    //input to local file, where we can access this file by adding, editing or deldeting pt recs
-    void saveToFile();      //save into local file
-    void loadFromFile();    //load from local file, can get previous saved pt records.
-
-    //util functions
-    bool valUserInput(const char* str, int type);  // validates user input: numeric and alphabetic
+    void saveToFile();
+    void loadFromFile();
+    bool valUserInput(const char* str, int type);
     void clearScreen();
 };
 
