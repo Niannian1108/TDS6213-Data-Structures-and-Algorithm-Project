@@ -1,4 +1,7 @@
 #include "patient.h"
+#include <iostream>
+
+using namespace std;
 
 //constructor to initialise empty structures and loads all existing data from local file
 managePatients::managePatients() : head(nullptr), root(nullptr)
@@ -30,145 +33,129 @@ void managePatients::cleanBST(BSTNode* node)  //deletes bst nodes
     }
 }
 
-void managePatients::addPatient()
-{
+void managePatients::addPatient() {
     Patient* newPatient = new Patient();
 
-    try
-    {
+    try {
         clearScreen();
-        std::cout << "\n=== Add New Patient ===\n";
+        printf("\n=== Add New Patient ===\n");
 
-        //gets patient details and valudates information
-        do
-        {
-            std::cout << "Enter Patient ID: ";
-            std::cin >>newPatient->id;
-        } while (newPatient->id <= 0);  //makes sure ID is positive
+        do {
+            printf("Enter Patient ID: ");
+            scanf("%d", &newPatient->id);
+            getchar(); // Clear input buffer
+        } while (newPatient->id <= 0);
 
-        std::cin.ignore();
-        do
-        {
-            std::cout << "Enter Patient Name: ";
-            std::cin.getline (newPatient->name,50);
-        } while (!valUserInput (newPatient->name, 2));  //type 2 is for alphabetic
+        do {
+            printf("Enter Patient Name: ");
+            fgets(newPatient->name, 50, stdin);
+            newPatient->name[strcspn(newPatient->name, "\n")] = 0;
+        } while (!valUserInput(newPatient->name, 2));
 
-        do
-        {
-            std::cout <<"Enter Age: ";
-            std::cin >> newPatient->age;
-        } while (newPatient->age <= 0 || newPatient->age > 120);    //restricts age range
+        do {
+            printf("Enter Age: ");
+            scanf("%d", &newPatient->age);
+            getchar(); // Clear input buffer
+        } while (newPatient->age <= 0 || newPatient->age > 120);
 
-        std::cin.ignore();
-        do
-        {
-            std::cout << "Enter Contact Number: ";
-            std::cin.getline (newPatient->contact, 15);
-        } while (!valUserInput ( newPatient->contact, 1));    //type 1 for numeric
+        do {
+            printf("Enter Contact Number: ");
+            fgets(newPatient->contact, 15, stdin);
+            newPatient->contact[strcspn(newPatient->contact, "\n")] = 0;
+        } while (!valUserInput(newPatient->contact, 1));
 
-        std::cout << "Enter Diagnosis: ";
-        std::cin.getline(newPatient->diagnosis, 100);
+        printf("Enter Diagnosis: ");
+        fgets(newPatient->diagnosis, 100, stdin);
+        newPatient->diagnosis[strcspn(newPatient->diagnosis, "\n")] = 0;
 
-        //add into linked list at the beginning
-        newPatient->next =head;
-        head  = newPatient;
+        newPatient->next = head;
+        head = newPatient;
+        insertBST(root, newPatient);
 
-        //add to bst, searches more efficiently
-        insertBST (root,newPatient);
-
-        std::cout << "\nPatient added successfully!\n";
-        saveToFile();   //make changes into local file
+        printf("\nPatient added successfully!\n");
+        saveToFile();
     }
-    catch(...)  //if any error
-    {
-        std::cout << "Error adding patient. Please try again.\n";
+    catch(...) {
+        printf("Error adding patient. Please try again.\n");
         delete newPatient;
     }
 }
 
-void managePatients::editPatient()
-{
-    if (!head)
-    {
-        std::cout <<"No patients in the system.\n"; //if no pt recs
+void managePatients::editPatient() {
+    if (!head) {
+        printf("No patients in the system.\n");
         return;
     }
 
-    //uses pt id to search record
     int searchId;
-    std::cout <<"Enter Patient ID to edit: ";
-    std::cin >> searchId;
+    printf("Enter Patient ID to edit: ");
+    scanf("%d", &searchId);
+    getchar(); // Clear input buffer
 
-    BSTNode*result = searchBST(root, searchId);
-    if (!result)    //if no rec found
-    {
-        std::cout <<"Patient not found.\n";
+    BSTNode* result = searchBST(root, searchId);
+    if (!result) {
+        printf("Patient not found.\n");
         return;
     }
 
-    //shows pt recorda
-    Patient* patient= result->patientData;
-    std::cout << "\nCurrent Patient Details:\n";
-    std::cout << "1. Name: " << patient->name << "\n";
-    std::cout << "2. Age: " << patient->age <<  "\n";
-    std::cout << "3. Contact: " << patient->contact << "\n";
-    std::cout << "4. Diagnosis: " <<patient->diagnosis << "\n";
-    std::cout << "5. Cancel Edit\n";
+    Patient* patient = result->patientData;
+    printf("\nCurrent Patient Details:\n");
+    printf("1. Name: %s\n", patient->name);
+    printf("2. Age: %d\n", patient->age);
+    printf("3. Contact: %s\n", patient->contact);
+    printf("4. Diagnosis: %s\n", patient->diagnosis);
+    printf("5. Cancel Edit\n");
 
-    //choes which field to edit instead of retyping the whole record
     int choice;
-    std::cout << "\nEnter field number to edit: ";
-    std::cin >> choice;
-    std::cin.ignore();
+    printf("\nEnter field number to edit: ");
+    scanf("%d", &choice);
+    getchar(); // Clear input buffer
 
-    try
-    {
-        switch(choice)
-        {
+    try {
+        switch(choice) {
             case 1:
-                do
-                {
-                    std::cout <<"Enter new name: ";
-                    std::cin.getline(patient->name, 50);
+                do {
+                    printf("Enter new name: ");
+                    fgets(patient->name, 50, stdin);
+                    patient->name[strcspn(patient->name, "\n")] = 0;
                 } while (!valUserInput(patient->name, 2));
                 break;
 
             case 2:
-                do
-                {
-                    std::cout << "Enter new age: ";
-                    std::cin >> patient->age;
+                do {
+                    printf("Enter new age: ");
+                    scanf("%d", &patient->age);
+                    getchar(); // Clear input buffer
                 } while (patient->age <= 0 || patient->age > 150);
                 break;
 
             case 3:
-                do
-                {
-                    std::cout << "Enter new contact: ";
-                    std::cin.getline(patient->contact, 15);
+                do {
+                    printf("Enter new contact: ");
+                    fgets(patient->contact, 15, stdin);
+                    patient->contact[strcspn(patient->contact, "\n")] = 0;
                 } while (!valUserInput(patient->contact, 1));
                 break;
 
             case 4:
-                std::cout << "Enter new diagnosis: ";
-                std::cin.getline(patient->diagnosis, 100);
+                printf("Enter new diagnosis: ");
+                fgets(patient->diagnosis, 100, stdin);
+                patient->diagnosis[strcspn(patient->diagnosis, "\n")] = 0;
                 break;
 
             case 5:
-                std::cout << "Edit cancelled.\n";
+                printf("Edit cancelled.\n");
                 return;
 
             default:
-                std::cout <<"Invalid choice.\n";
+                printf("Invalid choice.\n");
                 return;
         }
-        std::cout << "Patient record updated successfully!\n";
+        printf("Patient record updated successfully!\n");
         saveToFile();
     }
-
-    catch (...)
-    {
-        std::cout << "Error updating patient information.\n";
+    catch (...) {
+        printf("Error updating patient information.\n");
     }
 }
 
@@ -271,31 +258,25 @@ void managePatients::deleteBST(BSTNode*& node, int id)
     }
 }
 
-void managePatients::displayAllPatients()
-{
-    if(!head)
-    {
-        std::cout <<"No patients in the system.\n";
+void managePatients::displayAllPatients() {
+    if(!head) {
+        printf("No patients in the system.\n");
         return;
     }
 
     clearScreen();
-    std::cout << "\n=== All Patients ===\n";
-    std::cout << "ID\tName\t\tAge\tContact\t\tDiagnosis\n";
-    std::cout << "--------------------------------------------------------\n";
-    //PLEASE DO NOT EDIT THIS HEADER******
+    printf("\n=== All Patients ===\n");
+    printf("ID\tName\t\tAge\tContact\t\tDiagnosis\n");
+    printf("--------------------------------------------------------\n");
 
-    Patient*current =head;
-    while (current != nullptr)
-    {
-        std::cout << current->id << "\t"
-                 << current->name << "\t\t"
-                 << current->age << "\t"
-                 << current->contact << "\t"
-                 << current->diagnosis << "\n";
+    Patient* current = head;
+    while (current != nullptr) {
+        printf("%d\t%s\t\t%d\t%s\t%s\n",
+               current->id, current->name, current->age,
+               current->contact, current->diagnosis);
         current = current->next;
     }
-    std::cout << "--------------------------------------------------------\n";
+    printf("--------------------------------------------------------\n");
 }
 
 void managePatients::insertBST(BSTNode*& node,Patient*patient)
@@ -440,72 +421,64 @@ void managePatients::sortPatients() {
     quickSort(head, last);
     std::cout << "Patients sorted successfully using QuickSort!\n";
 }
-void managePatients::saveToFile()
-{
-    std::ofstream file("patients.txt");
-    if(!file)
-    {
-        std::cout<< "Error opening file for writing.\n";
+
+void managePatients::saveToFile() {
+    FILE* file = fopen("patients.txt", "w");
+    if(!file) {
+        printf("Error opening file for writing.\n");
         return;
     }
 
     Patient* current = head;
-    while (current)
-    {
-        file << current->id << "\n"
-             << current->name << "\n"
-             << current->age << "\n"
-             << current->contact << "\n"
-             << current->diagnosis << "\n";
-        current =current ->next;
+    while (current) {
+        fprintf(file, "%d\n%s\n%d\n%s\n%s\n",
+                current->id, current->name, current->age,
+                current->contact, current->diagnosis);
+        current = current->next;
     }
-    file.close();
+    fclose(file);
 }
 
-void managePatients::loadFromFile()
-{
-    std::ifstream file ("patients.txt");
+void managePatients::loadFromFile() {
+    FILE* file = fopen("patients.txt", "r");
     if(!file) return;
 
-    //clears current existing data
-    while (head!= nullptr)
-    {
-        Patient*temp = head;
-        head = head -> next;
+    // Clear existing data
+    while (head != nullptr) {
+        Patient* temp = head;
+        head = head->next;
         delete temp;
     }
     cleanBST(root);
     root = nullptr;
 
-    while (true)
-    {
-        Patient*newPatient =  new Patient();
+    char buffer[100];
+    while (!feof(file)) {
+        Patient* newPatient = new Patient();
 
-        if (!(file >>newPatient->id))
-        {
+        if (fscanf(file, "%d\n", &newPatient->id) != 1) {
             delete newPatient;
             break;
         }
 
-        file.ignore();
-        file.getline (newPatient->name, 50);
-        file >> newPatient ->age;
-        file.ignore();
-        file.getline(newPatient ->contact, 15);
-        file.getline(newPatient ->diagnosis,100);
+        fgets(newPatient->name, 50, file);
+        newPatient->name[strcspn(newPatient->name, "\n")] = 0;
 
-        //add into linked list
+        fscanf(file, "%d\n", &newPatient->age);
+
+        fgets(newPatient->contact, 15, file);
+        newPatient->contact[strcspn(newPatient->contact, "\n")] = 0;
+
+        fgets(newPatient->diagnosis, 100, file);
+        newPatient->diagnosis[strcspn(newPatient->diagnosis, "\n")] = 0;
+
+        // Add to linked list
         newPatient->next = nullptr;
-        if (!head)
-        {
+        if (!head) {
             head = newPatient;
-        }
-
-        else
-        {
+        } else {
             Patient* current = head;
-            while (current->next != nullptr)
-            {
+            while (current->next != nullptr) {
                 current = current->next;
             }
             current->next = newPatient;
@@ -513,25 +486,25 @@ void managePatients::loadFromFile()
 
         insertBST(root, newPatient);
     }
-    file.close();
+    fclose(file);
 }
 
 bool managePatients::valUserInput(const char* str, int type)
 {
     if(!str[0]) return false;
 
-    for (int i = 0; str[i];i++)
+    for (int i = 0; str[i]; i++)
     {
-        if (type== 1)
-        {  // Numeric
+        if (type == 1)  // Numeric
+        {
             if (!isdigit(str[i])) return false;
         }
-    else if (type == 2)   //alphabetics
+        else if (type == 2)   //alphabetic
         {
-            if (!isalpha(str[i])&& str[i] != ' ') return false;
+            if (!isalpha(str[i]) && str[i] != ' ') return false;
         }
-    return true;
     }
+    return true;  // Move return true outside the loop
 }
 
 void managePatients::clearScreen()
