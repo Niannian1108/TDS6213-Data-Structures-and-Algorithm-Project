@@ -1,5 +1,9 @@
 // doctor.cpp
 #include "doctor.h"
+#include <cstring>
+#include <iostream>
+
+using namespace std;
 
 manageDoctors::manageDoctors(managePatients* patientSys)
     : head(nullptr), root(nullptr), patientSystem(patientSys) {
@@ -19,63 +23,63 @@ void manageDoctors::addDoctor() {
     Doctor* newDoctor = new Doctor();
 
     try {
-        std::cout << "\n=== Add New Doctor ===\n";
+        cout << "\n=== Add New Doctor ===\n";
 
         do {
-            std::cout << "Enter Doctor ID: ";
-            std::cin >> newDoctor->id;
+            cout << "Enter Doctor ID: ";
+            cin >> newDoctor->id;
         } while (newDoctor->id <= 0);
 
-        std::cin.ignore();
+        cin.ignore();
         do {
-            std::cout << "Enter Doctor Name: ";
-            std::cin.getline(newDoctor->name, 50);
+            cout << "Enter Doctor Name: ";
+            cin.getline(newDoctor->name, 50);
         } while (!valUserInput(newDoctor->name, 2));
 
         do {
-            std::cout << "Enter Specialization: ";
-            std::cin.getline(newDoctor->specialization, 50);
+            cout << "Enter Specialization: ";
+            cin.getline(newDoctor->specialization, 50);
         } while (!valUserInput(newDoctor->specialization, 2));
 
         do {
-            std::cout << "Enter Contact Number: ";
-            std::cin.getline(newDoctor->contact, 15);
+            cout << "Enter Contact Number: ";
+            cin.getline(newDoctor->contact, 15);
         } while (!valUserInput(newDoctor->contact, 1));
 
         newDoctor->next = head;
         head = newDoctor;
         insertBST(root, newDoctor);
 
-        std::cout << "\nDoctor added successfully!\n";
+        cout << "\nDoctor added successfully!\n";
         saveToFile();
     }
     catch(...) {
-        std::cout << "Error adding doctor. Please try again.\n";
+        cout << "Error adding doctor. Please try again.\n";
         delete newDoctor;
     }
 }
 
 void manageDoctors::assignPatient() {
     if (!head) {
-        std::cout << "No doctors in the system.\n";
+        printf("No doctors in the system.\n");
         return;
     }
 
     int doctorId, patientId;
 
-    std::cout << "Enter Doctor ID: ";
-    std::cin >> doctorId;
+    printf("Enter Doctor ID: ");
+    scanf("%d", &doctorId);
 
     DoctorBSTNode* doctorNode = searchBST(root, doctorId);
     if (!doctorNode) {
-        std::cout << "Doctor not found.\n";
+        printf("Doctor not found.\n");
         return;
     }
 
-    std::cout << "Enter Patient ID to assign: ";
-    std::cin >> patientId;
+    printf("Enter Patient ID to assign: ");
+    scanf("%d", &patientId);
 
-    // Search through the patient linked list instead of BST
+    // Check if patient exists
     Patient* currentPatient = patientSystem->head;
     bool patientFound = false;
 
@@ -88,38 +92,46 @@ void manageDoctors::assignPatient() {
     }
 
     if (!patientFound) {
-        std::cout << "Patient not found.\n";
+        printf("Patient not found.\n");
         return;
     }
 
-    // Check if patient is already assigned to this doctor
-    for (int assignedId : doctorNode->doctorData->assignedPatients) {
-        if (assignedId == patientId) {
-            std::cout << "This patient is already assigned to this doctor.\n";
+    // Check if patient is already assigned
+    for (int i = 0; i < doctorNode->doctorData->patientCount; i++) {
+        if (doctorNode->doctorData->assignedPatients[i] == patientId) {
+            printf("This patient is already assigned to this doctor.\n");
             return;
         }
     }
 
-    // Add patient to doctor's list
-    doctorNode->doctorData->assignedPatients.push_back(patientId);
-    std::cout << "Patient " << patientId << " successfully assigned to Dr. "
-              << doctorNode->doctorData->name << "!\n";
-    saveToFile();
-}
-void manageDoctors::displayDoctorPatients(int doctorId) {
-    DoctorBSTNode* doctorNode = searchBST(root, doctorId);
-    if (!doctorNode) {
-        std::cout << "Doctor not found.\n";
+    // Check if doctor has reached maximum patients
+    if (doctorNode->doctorData->patientCount >= MAX_PATIENTS) {
+        printf("Doctor has reached maximum patient capacity.\n");
         return;
     }
 
-    std::cout << "\nPatients assigned to Dr. " << doctorNode->doctorData->name << ":\n";
-    for (int patientId : doctorNode->doctorData->assignedPatients) {
-        // Display patient details using direct root access
+    // Add patient to doctor's list
+    doctorNode->doctorData->assignedPatients[doctorNode->doctorData->patientCount++] = patientId;
+    printf("Patient %d successfully assigned to Dr. %s!\n",
+           patientId, doctorNode->doctorData->name);
+    saveToFile();
+}
+
+void manageDoctors::displayDoctorPatients(int doctorId) {
+    DoctorBSTNode* doctorNode = searchBST(root, doctorId);
+    if (!doctorNode) {
+        printf("Doctor not found.\n");
+        return;
+    }
+
+    printf("\nPatients assigned to Dr. %s:\n", doctorNode->doctorData->name);
+    for (int i = 0; i < doctorNode->doctorData->patientCount; i++) {
+        int patientId = doctorNode->doctorData->assignedPatients[i];
         BSTNode* patientNode = patientSystem->searchBST(patientSystem->root, patientId);
         if (patientNode) {
-            std::cout << "ID: " << patientNode->patientData->id
-                     << ", Name: " << patientNode->patientData->name << "\n";
+            printf("ID: %d, Name: %s\n",
+                   patientNode->patientData->id,
+                   patientNode->patientData->name);
         }
     }
 }
@@ -182,32 +194,28 @@ void manageDoctors::deleteBST(DoctorBSTNode*& node, int id) {
 }
 
 void manageDoctors::saveToFile() {
-    std::ofstream file("doctors.txt");
+    FILE* file = fopen("doctors.txt", "w");
     if (!file) {
-        std::cout << "Error opening file for writing.\n";
+        printf("Error opening file for writing.\n");
         return;
     }
 
     Doctor* current = head;
     while (current) {
-        file << current->id << "\n"
-             << current->name << "\n"
-             << current->specialization << "\n"
-             << current->contact << "\n";
+        fprintf(file, "%d\n%s\n%s\n%s\n%d\n",
+                current->id, current->name, current->specialization,
+                current->contact, current->patientCount);
 
-        // Save assigned patients
-        file << current->assignedPatients.size() << "\n";
-        for (int patientId : current->assignedPatients) {
-            file << patientId << "\n";
+        for (int i = 0; i < current->patientCount; i++) {
+            fprintf(file, "%d\n", current->assignedPatients[i]);
         }
-
         current = current->next;
     }
-    file.close();
+    fclose(file);
 }
 
 void manageDoctors::loadFromFile() {
-    std::ifstream file("doctors.txt");
+    FILE* file = fopen("doctors.txt", "r");
     if (!file) return;
 
     // Clear existing data
@@ -219,28 +227,29 @@ void manageDoctors::loadFromFile() {
     cleanBST(root);
     root = nullptr;
 
-    while (file) {
+    char buffer[100];
+    while (!feof(file)) {
         Doctor* newDoctor = new Doctor();
 
-        if (!(file >> newDoctor->id)) {
+        if (fscanf(file, "%d\n", &newDoctor->id) != 1) {
             delete newDoctor;
             break;
         }
 
-        file.ignore();
-        file.getline(newDoctor->name, 50);
-        file.getline(newDoctor->specialization, 50);
-        file.getline(newDoctor->contact, 15);
+        fgets(newDoctor->name, 50, file);
+        newDoctor->name[strcspn(newDoctor->name, "\n")] = 0;
 
-        // Load assigned patients
-        int numPatients;
-        file >> numPatients;
-        for (int i = 0; i < numPatients; i++) {
-            int patientId;
-            file >> patientId;
-            newDoctor->assignedPatients.push_back(patientId);
+        fgets(newDoctor->specialization, 50, file);
+        newDoctor->specialization[strcspn(newDoctor->specialization, "\n")] = 0;
+
+        fgets(newDoctor->contact, 15, file);
+        newDoctor->contact[strcspn(newDoctor->contact, "\n")] = 0;
+
+        fscanf(file, "%d\n", &newDoctor->patientCount);
+
+        for (int i = 0; i < newDoctor->patientCount; i++) {
+            fscanf(file, "%d\n", &newDoctor->assignedPatients[i]);
         }
-        file.ignore();
 
         // Add to linked list
         newDoctor->next = nullptr;
@@ -256,80 +265,81 @@ void manageDoctors::loadFromFile() {
 
         insertBST(root, newDoctor);
     }
-    file.close();
+    fclose(file);
 }
+
 
 void manageDoctors::editDoctor() {
     if (!head) {
-        std::cout << "No doctors in the system.\n";
+        cout << "No doctors in the system.\n";
         return;
     }
 
     int searchId;
-    std::cout << "Enter Doctor ID to edit: ";
-    std::cin >> searchId;
+    cout << "Enter Doctor ID to edit: ";
+    cin >> searchId;
 
     DoctorBSTNode* result = searchBST(root, searchId);
     if (!result) {
-        std::cout << "Doctor not found.\n";
+        cout << "Doctor not found.\n";
         return;
     }
 
-    std::cout << "\nCurrent Doctor Details:\n";
-    std::cout << "1. Name: " << result->doctorData->name << "\n";
-    std::cout << "2. Specialization: " << result->doctorData->specialization << "\n";
-    std::cout << "3. Contact: " << result->doctorData->contact << "\n";
-    std::cout << "4. Cancel Edit\n";
+    cout << "\nCurrent Doctor Details:\n";
+    cout << "1. Name: " << result->doctorData->name << "\n";
+    cout << "2. Specialization: " << result->doctorData->specialization << "\n";
+    cout << "3. Contact: " << result->doctorData->contact << "\n";
+    cout << "4. Cancel Edit\n";
 
     int choice;
-    std::cout << "\nEnter field number to edit: ";
-    std::cin >> choice;
-    std::cin.ignore();
+    cout << "\nEnter field number to edit: ";
+    cin >> choice;
+    cin.ignore();
 
     try {
         switch(choice) {
             case 1:
                 do {
-                    std::cout << "Enter new name: ";
-                    std::cin.getline(result->doctorData->name, 50);
+                    cout << "Enter new name: ";
+                    cin.getline(result->doctorData->name, 50);
                 } while (!valUserInput(result->doctorData->name, 2));
                 break;
             case 2:
                 do {
-                    std::cout << "Enter new specialization: ";
-                    std::cin.getline(result->doctorData->specialization, 50);
+                    cout << "Enter new specialization: ";
+                    cin.getline(result->doctorData->specialization, 50);
                 } while (!valUserInput(result->doctorData->specialization, 2));
                 break;
             case 3:
                 do {
-                    std::cout << "Enter new contact: ";
-                    std::cin.getline(result->doctorData->contact, 15);
+                    cout << "Enter new contact: ";
+                    cin.getline(result->doctorData->contact, 15);
                 } while (!valUserInput(result->doctorData->contact, 1));
                 break;
             case 4:
-                std::cout << "Edit cancelled.\n";
+                cout << "Edit cancelled.\n";
                 return;
             default:
-                std::cout << "Invalid choice.\n";
+                cout << "Invalid choice.\n";
                 return;
         }
-        std::cout << "Doctor record updated successfully!\n";
+        cout << "Doctor record updated successfully!\n";
         saveToFile();
     }
     catch (...) {
-        std::cout << "Error updating doctor information.\n";
+        cout << "Error updating doctor information.\n";
     }
 }
 
 void manageDoctors::deleteDoctor() {
     if (!head) {
-        std::cout << "No doctors in the system.\n";
+        cout << "No doctors in the system.\n";
         return;
     }
 
     int deleteId;
-    std::cout << "Enter Doctor ID to delete: ";
-    std::cin >> deleteId;
+    cout << "Enter Doctor ID to delete: ";
+    cin >> deleteId;
 
     try {
         Doctor* current = head;
@@ -346,7 +356,7 @@ void manageDoctors::deleteDoctor() {
         }
 
         if (!found) {
-            std::cout << "Doctor not found.\n";
+            cout << "Doctor not found.\n";
             return;
         }
 
@@ -358,72 +368,72 @@ void manageDoctors::deleteDoctor() {
 
         deleteBST(root, deleteId);
         delete current;
-        std::cout << "Doctor deleted successfully!\n";
+        cout << "Doctor deleted successfully!\n";
         saveToFile();
     }
     catch (...) {
-        std::cout << "Error deleting doctor.\n";
+        cout << "Error deleting doctor.\n";
     }
 }
 
 void manageDoctors::searchDoctor() {
     if (!head) {
-        std::cout << "No doctors in the system.\n";
+        printf("No doctors in the system.\n");
         return;
     }
 
     int searchId;
-    std::cout << "Enter Doctor ID to search: ";
-    std::cin >> searchId;
+    printf("Enter Doctor ID to search: ");
+    scanf("%d", &searchId);
 
     try {
         DoctorBSTNode* result = searchBST(root, searchId);
         if (result && result->doctorData) {
-            std::cout << "\nDoctor Found:\n";
-            std::cout << "ID: " << result->doctorData->id << "\n";
-            std::cout << "Name: " << result->doctorData->name << "\n";
-            std::cout << "Specialization: " << result->doctorData->specialization << "\n";
-            std::cout << "Contact: " << result->doctorData->contact << "\n";
-            std::cout << "Number of assigned patients: " << result->doctorData->assignedPatients.size() << "\n";
+            printf("\nDoctor Found:\n");
+            printf("ID: %d\n", result->doctorData->id);
+            printf("Name: %s\n", result->doctorData->name);
+            printf("Specialization: %s\n", result->doctorData->specialization);
+            printf("Contact: %s\n", result->doctorData->contact);
+            printf("Number of assigned patients: %d\n", result->doctorData->patientCount);
         } else {
-            std::cout << "Doctor not found.\n";
+            printf("Doctor not found.\n");
         }
     }
     catch (...) {
-        std::cout << "Error occurred while searching.\n";
+        printf("Error occurred while searching.\n");
     }
 }
 
 void manageDoctors::displayAllDoctors() {
     if (!head) {
-        std::cout << "No doctors in the system.\n";
+        cout << "No doctors in the system.\n";
         return;
     }
 
-    std::cout << "\n=== All Doctors ===\n";
-    std::cout << "ID\tName\t\tSpecialization\t\tContact\t\t\tPatients\n";
-    std::cout << "--------------------------------------------------------------------------------\n";
+    cout << "\n=== All Doctors ===\n";
+    cout << "ID\tName\t\tSpecialization\t\tContact\t\t\tPatients\n";
+    cout << "--------------------------------------------------------------------------------\n";
 
     Doctor* current = head;
     while (current != nullptr) {
         // Calculate padding for name and specialization
-        std::string nameStr(current->name);
-        std::string specStr(current->specialization);
-        std::string contactStr(current->contact);
+        string nameStr(current->name);
+        string specStr(current->specialization);
+        string contactStr(current->contact);
 
         // Add padding based on string length
-        std::string namePad = nameStr.length() < 8 ? "\t\t" : "\t";
-        std::string specPad = specStr.length() < 8 ? "\t\t\t" : "\t\t";
-        std::string contactPad = contactStr.length() < 8 ? "\t\t\t" : "\t\t";
+        string namePad = nameStr.length() < 8 ? "\t\t" : "\t";
+        string specPad = specStr.length() < 8 ? "\t\t\t" : "\t\t";
+        string contactPad = contactStr.length() < 8 ? "\t\t\t" : "\t\t";
 
-        std::cout << current->id << "\t"
+        cout << current->id << "\t"
                  << current->name << namePad
                  << current->specialization << specPad
-                 << current->contact << contactPad
-                 << current->assignedPatients.size() << "\n";
-        current = current->next;
+                 << current->contact << contactPad;
+            cout << current->patientCount << "\n";
+                current = current->next;
     }
-    std::cout << "--------------------------------------------------------------------------------\n";
+    cout << "--------------------------------------------------------------------------------\n";
 }
 
 bool manageDoctors::valUserInput(const char* str, int type) {
@@ -448,29 +458,35 @@ void manageDoctors::sortDoctors() {
         for (j = i->next; j != nullptr; j = j->next) {
             if (i->id > j->id) {
                 // Swap data
-                std::swap(i->id, j->id);
+                int tempId = i->id;
+                i->id = j->id;
+                j->id = tempId;
 
-                char temp[50];
-                strcpy(temp, i->name);
+                char tempStr[50];
+                strcpy(tempStr, i->name);
                 strcpy(i->name, j->name);
-                strcpy(j->name, temp);
+                strcpy(j->name, tempStr);
 
-                strcpy(temp, i->specialization);
+                strcpy(tempStr, i->specialization);
                 strcpy(i->specialization, j->specialization);
-                strcpy(j->specialization, temp);
+                strcpy(j->specialization, tempStr);
 
-                strcpy(temp, i->contact);
+                strcpy(tempStr, i->contact);
                 strcpy(i->contact, j->contact);
-                strcpy(j->contact, temp);
+                strcpy(j->contact, tempStr);
 
-                // Swap assigned patients vector
-                std::vector<int> tempPatients = i->assignedPatients;
-                i->assignedPatients = j->assignedPatients;
-                j->assignedPatients = tempPatients;
+                // Swap patient arrays
+                int tempPatients[MAX_PATIENTS];
+                memcpy(tempPatients, i->assignedPatients, sizeof(int) * MAX_PATIENTS);
+                memcpy(i->assignedPatients, j->assignedPatients, sizeof(int) * MAX_PATIENTS);
+                memcpy(j->assignedPatients, tempPatients, sizeof(int) * MAX_PATIENTS);
+
+                // Swap patient counts
+                int tempCount = i->patientCount;
+                i->patientCount = j->patientCount;
+                j->patientCount = tempCount;
             }
         }
     }
-    std::cout << "Doctors sorted successfully!\n";
+    printf("Doctors sorted successfully!\n");
 }
-// Implement other necessary methods similar to patient management...
-// (saveToFile, loadFromFile, editDoctor, deleteDoctor, searchDoctor, displayAllDoctors, sortDoctors)
