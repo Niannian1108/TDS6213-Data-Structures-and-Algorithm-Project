@@ -3,17 +3,19 @@
 #define DOCTOR_H
 
 #include "patient.h"
-#include <vector>
+
+#define MAX_PATIENTS 100 // Maximum patients per doctor
 
 struct Doctor {
     int id;
     char name[50];
     char specialization[50];
     char contact[15];
-    std::vector<int> assignedPatients; // Store patient IDs
+    int assignedPatients[MAX_PATIENTS]; // Array to store patient IDs
+    int patientCount;                   // Number of assigned patients
     Doctor* next;
 
-    Doctor() : id(0), next(nullptr) {
+    Doctor() : id(0), patientCount(0), next(nullptr) {
         name[0] = '\0';
         specialization[0] = '\0';
         contact[0] = '\0';
@@ -32,7 +34,7 @@ class manageDoctors {
 private:
     Doctor* head;
     DoctorBSTNode* root;
-    managePatients* patientSystem; // Reference to patient management system
+    managePatients* patientSystem;
 
     void insertBST(DoctorBSTNode*& node, Doctor* doctor);
     DoctorBSTNode* searchBST(DoctorBSTNode* node, int id);
@@ -42,6 +44,9 @@ private:
 public:
     manageDoctors(managePatients* patientSys);
     ~manageDoctors();
+
+    manageDoctors(const manageDoctors& other) = delete;
+    manageDoctors& operator=(const manageDoctors& other) = delete;
 
     void addDoctor();
     void editDoctor();
