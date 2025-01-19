@@ -1,161 +1,172 @@
 #include "patient.h"
 #include <iostream>
+#include <cstdio>
+#include <cstring>
+#include <cctype>
 
 using namespace std;
 
-//constructor to initialise empty structures and loads all existing data from local file
+// Constructor to initialize empty structures and load all existing data from local file
 managePatients::managePatients() : head(nullptr), root(nullptr)
 {
     loadFromFile();
 }
 
-//destructor to clean all dynamically allocated mem
+// Destructor to clean all dynamically allocated memory
 managePatients::~managePatients()
 {
-    //cleans linked list
+    // Clean linked list
     while (head != nullptr)
     {
         Patient* temp = head;
         head = head->next;
         delete temp;
     }
-    //cleans bst
+    // Clean BST
     cleanBST(root);
 }
 
-void managePatients::cleanBST(BSTNode* node)  //deletes bst nodes
+void managePatients::cleanBST(BSTNode* node)  // Deletes BST nodes
 {
     if (node)
     {
         cleanBST(node->left);
         cleanBST(node->right);
-        delete node;        //cleans left, right subtree and then current node
+        delete node;  // Clean left, right subtree and then current node
     }
 }
 
-void managePatients::addPatient() {
+void managePatients::addPatient()
+{
     Patient* newPatient = new Patient();
 
-    try {
+    try
+    {
         clearScreen();
-        printf("\n=== Add New Patient ===\n");
+        cout << "\n=== Add New Patient ===\n";
 
-        do {
-            printf("Enter Patient ID: ");
-            scanf("%d", &newPatient->id);
-            getchar(); // Clear input buffer
+        do
+        {
+            cout << "Enter Patient ID: ";
+            cin >> newPatient->id;
         } while (newPatient->id <= 0);
 
-        do {
-            printf("Enter Patient Name: ");
-            fgets(newPatient->name, 50, stdin);
-            newPatient->name[strcspn(newPatient->name, "\n")] = 0;
+        cin.ignore();
+        do
+        {
+            cout << "Enter Patient Name: ";
+            cin.getline(newPatient->name, 50);
         } while (!valUserInput(newPatient->name, 2));
 
-        do {
-            printf("Enter Age: ");
-            scanf("%d", &newPatient->age);
-            getchar(); // Clear input buffer
+        do
+        {
+            cout << "Enter Age: ";
+            cin >> newPatient->age;
         } while (newPatient->age <= 0 || newPatient->age > 120);
 
-        do {
-            printf("Enter Contact Number: ");
-            fgets(newPatient->contact, 15, stdin);
-            newPatient->contact[strcspn(newPatient->contact, "\n")] = 0;
+        cin.ignore();
+        do
+        {
+            cout << "Enter Contact Number: ";
+            cin.getline(newPatient->contact, 15);
         } while (!valUserInput(newPatient->contact, 1));
 
-        printf("Enter Diagnosis: ");
-        fgets(newPatient->diagnosis, 100, stdin);
-        newPatient->diagnosis[strcspn(newPatient->diagnosis, "\n")] = 0;
+        cout << "Enter Diagnosis: ";
+        cin.getline(newPatient->diagnosis, 100);
 
         newPatient->next = head;
         head = newPatient;
         insertBST(root, newPatient);
 
-        printf("\nPatient added successfully!\n");
+        cout << "\nPatient added successfully!\n";
         saveToFile();
     }
-    catch(...) {
-        printf("Error adding patient. Please try again.\n");
+    catch(...)
+    {
+        cout << "Error adding patient. Please try again.\n";
         delete newPatient;
     }
 }
 
-void managePatients::editPatient() {
-    if (!head) {
-        printf("No patients in the system.\n");
+void managePatients::editPatient()
+{
+    if (!head)
+    {
+        cout << "No patients in the system.\n";
         return;
     }
 
     int searchId;
-    printf("Enter Patient ID to edit: ");
-    scanf("%d", &searchId);
-    getchar(); // Clear input buffer
+    cout << "Enter Patient ID to edit: ";
+    cin >> searchId;
 
     BSTNode* result = searchBST(root, searchId);
-    if (!result) {
-        printf("Patient not found.\n");
+    if (!result)
+    {
+        cout << "Patient not found.\n";
         return;
     }
 
     Patient* patient = result->patientData;
-    printf("\nCurrent Patient Details:\n");
-    printf("1. Name: %s\n", patient->name);
-    printf("2. Age: %d\n", patient->age);
-    printf("3. Contact: %s\n", patient->contact);
-    printf("4. Diagnosis: %s\n", patient->diagnosis);
-    printf("5. Cancel Edit\n");
+    cout << "\nCurrent Patient Details:\n";
+    cout << "1. Name: " << patient->name << "\n";
+    cout << "2. Age: " << patient->age << "\n";
+    cout << "3. Contact: " << patient->contact << "\n";
+    cout << "4. Diagnosis: " << patient->diagnosis << "\n";
+    cout << "5. Cancel Edit\n";
 
     int choice;
-    printf("\nEnter field number to edit: ");
-    scanf("%d", &choice);
-    getchar(); // Clear input buffer
+    cout << "\nEnter field number to edit: ";
+    cin >> choice;
+    cin.ignore();
 
-    try {
-        switch(choice) {
+    try
+    {
+        switch(choice)
+        {
             case 1:
-                do {
-                    printf("Enter new name: ");
-                    fgets(patient->name, 50, stdin);
-                    patient->name[strcspn(patient->name, "\n")] = 0;
+                do
+                {
+                    cout << "Enter new name: ";
+                    cin.getline(patient->name, 50);
                 } while (!valUserInput(patient->name, 2));
                 break;
 
             case 2:
-                do {
-                    printf("Enter new age: ");
-                    scanf("%d", &patient->age);
-                    getchar(); // Clear input buffer
+                do
+                {
+                    cout << "Enter new age: ";
+                    cin >> patient->age;
                 } while (patient->age <= 0 || patient->age > 150);
                 break;
 
             case 3:
-                do {
-                    printf("Enter new contact: ");
-                    fgets(patient->contact, 15, stdin);
-                    patient->contact[strcspn(patient->contact, "\n")] = 0;
+                do
+                {
+                    cout << "Enter new contact: ";
+                    cin.getline(patient->contact, 15);
                 } while (!valUserInput(patient->contact, 1));
                 break;
 
             case 4:
-                printf("Enter new diagnosis: ");
-                fgets(patient->diagnosis, 100, stdin);
-                patient->diagnosis[strcspn(patient->diagnosis, "\n")] = 0;
+                cout << "Enter new diagnosis: ";
+                cin.getline(patient->diagnosis, 100);
                 break;
 
             case 5:
-                printf("Edit cancelled.\n");
+                cout << "Edit cancelled.\n";
                 return;
 
             default:
-                printf("Invalid choice.\n");
+                cout << "Invalid choice.\n";
                 return;
         }
-        printf("Patient record updated successfully!\n");
+        cout << "Patient record updated successfully!\n";
         saveToFile();
     }
-    catch (...) {
-        printf("Error updating patient information.\n");
+    catch (...)
+    {
+        cout << "Error updating patient information.\n";
     }
 }
 
@@ -163,84 +174,75 @@ void managePatients::deletePatient()
 {
     if (!head)
     {
-        std::cout << "No patients in the system.\n";
+        cout << "No patients in the system.\n";
         return;
     }
 
     int deleteId;
-    std::cout << "Enter Patient ID to delete: ";
-    std::cin >> deleteId;
+    cout << "Enter Patient ID to delete: ";
+    cin >> deleteId;
 
     try
     {
-        //search for pt record in linked list
         Patient* current = head;
         Patient* prev = nullptr;
-        bool found =false;
+        bool found = false;
 
         while (current != nullptr)
         {
-            if (current->id ==deleteId)
+            if (current->id == deleteId)
             {
                 found = true;
                 break;
             }
-            prev =current;
+            prev = current;
             current = current->next;
         }
 
-        if(!found)
+        if (!found)
         {
-            std::cout << "Patient not found.\n";
+            cout << "Patient not found.\n";
             return;
         }
 
-        //removes rec from linked list
-        if (prev ==nullptr)
+        if (prev == nullptr)
         {
             head = current->next;
         }
-
         else
         {
-            prev->next =current->next;
+            prev->next = current->next;
         }
 
-        //remove from bst
         deleteBST(root, deleteId);
 
         delete current;
-        std::cout<< "Patient deleted successfully!\n";
-        saveToFile();   //saves changes into local file
+        cout << "Patient deleted successfully!\n";
+        saveToFile();
     }
-
     catch(...)
     {
-        std::cout << "Error deleting patient.\n";
+        cout << "Error deleting patient.\n";
     }
 }
 
-//delete bst node
 void managePatients::deleteBST(BSTNode*& node, int id)
 {
-    if(!node) return;
+    if (!node) return;
 
-    if(id< node->patientData->id)
+    if (id < node->patientData->id)
         deleteBST(node->left, id);
-
     else if (id > node->patientData->id)
         deleteBST(node->right, id);
-
     else
     {
-        //once finds node, delets it
-        if (!node->left)    //if no left child
+        if (!node->left)
         {
             BSTNode* temp = node->right;
             delete node;
             node = temp;
         }
-        else if(!node->right)   //if no right childe
+        else if (!node->right)
         {
             BSTNode* temp = node->left;
             delete node;
@@ -248,50 +250,53 @@ void managePatients::deleteBST(BSTNode*& node, int id)
         }
         else
         {
-            //if node has 2 child, will find successor which is in the right subtree
-            BSTNode*temp = node->right;
-            while(temp->left)
+            BSTNode* temp = node->right;
+            while (temp->left)
                 temp = temp->left;
-            node->patientData =temp->patientData;
-            deleteBST(node->right,temp->patientData->id);
+            node->patientData = temp->patientData;
+            deleteBST(node->right, temp->patientData->id);
         }
     }
 }
 
-void managePatients::displayAllPatients() {
-    if(!head) {
-        printf("No patients in the system.\n");
+void managePatients::displayAllPatients()
+{
+    if (!head)
+    {
+        cout << "No patients in the system.\n";
         return;
     }
 
     clearScreen();
-    printf("\n=== All Patients ===\n");
-    printf("ID\tName\t\tAge\tContact\t\tDiagnosis\n");
-    printf("--------------------------------------------------------\n");
+    cout << "\n=== All Patients ===\n";
+    cout << "ID\tName\t\tAge\tContact\t\tDiagnosis\n";
+    cout << "--------------------------------------------------------\n";
 
     Patient* current = head;
-    while (current != nullptr) {
-        printf("%d\t%s\t\t%d\t%s\t%s\n",
-               current->id, current->name, current->age,
-               current->contact, current->diagnosis);
+    while (current != nullptr)
+    {
+        cout << current->id << "\t"
+             << current->name << "\t\t"
+             << current->age << "\t"
+             << current->contact << "\t"
+             << current->diagnosis << "\n";
         current = current->next;
     }
-    printf("--------------------------------------------------------\n");
+    cout << "--------------------------------------------------------\n";
 }
 
-void managePatients::insertBST(BSTNode*& node,Patient*patient)
+void managePatients::insertBST(BSTNode*& node, Patient* patient)
 {
-    if(!node)   //creates new node if the current node is null
+    if (!node)
     {
-        node =new BSTNode(patient);
+        node = new BSTNode(patient);
         return;
     }
 
-    if(patient->id < node->patientData->id)
+    if (patient->id < node->patientData->id)
     {
         insertBST(node->left, patient);
     }
-
     else if (patient->id > node->patientData->id)
     {
         insertBST(node->right, patient);
@@ -302,67 +307,65 @@ void managePatients::searchPatient()
 {
     if (!head)
     {
-        std::cout << "No patients in the system.\n";
+        cout << "No patients in the system.\n";
         return;
     }
 
     int searchId;
-    std::cout << "Enter Patient ID to search: ";
-    std::cin >> searchId;
+    cout << "Enter Patient ID to search: ";
+    cin >> searchId;
 
     try
     {
-        BSTNode*  result= searchBST(root, searchId);
+        BSTNode* result = searchBST(root, searchId);
         if (result && result->patientData)
         {
-            std::cout << "\nPatient Found:\n";
-            std::cout << "ID: " << result->patientData->id << "\n";
-            std::cout << "Name: " << result->patientData->name << "\n";
-            std::cout << "Age: " <<  result->patientData->age << "\n";
-            std::cout << "Contact: " << result->patientData->contact<< "\n";
-            std::cout << "Diagnosis: " << result->patientData->diagnosis << "\n";
+            cout << "\nPatient Found:\n";
+            cout << "ID: " << result->patientData->id << "\n";
+            cout << "Name: " << result->patientData->name << "\n";
+            cout << "Age: " << result->patientData->age << "\n";
+            cout << "Contact: " << result->patientData->contact << "\n";
+            cout << "Diagnosis: " << result->patientData->diagnosis << "\n";
         }
-
         else
         {
-            std::cout << "Patient not found.\n";
+            cout << "Patient not found.\n";
         }
     }
     catch(...)
     {
-        std::cout  << "Error occurred while searching.\n";
+        cout << "Error occurred while searching.\n";
     }
 }
 
-
 BSTNode* managePatients::searchBST(BSTNode* node, int id)
 {
-    if(!node || !node->patientData) return nullptr;
+    if (!node || !node->patientData) return nullptr;
 
     if (node->patientData->id == id) return node;
 
-    if (id <node->patientData->id)
+    if (id < node->patientData->id)
         return searchBST(node->left, id);
     return searchBST(node->right, id);
 }
 
-// Replace the existing sortPatients() in patient.cpp with this implementation:
-
-void managePatients::quickSort(Patient* start, Patient* end) {
+void managePatients::quickSort(Patient* start, Patient* end)
+{
     if (start == end || start == nullptr || end == nullptr || start == end->next)
         return;
 
-    // Choose pivot as last element
     Patient* pivot = end;
     Patient* current = start;
     Patient* tail = start;
 
-    while (current != end) {
-        if (current->id < pivot->id) {
-            // Swap current and tail if needed
-            if (current != tail) {
-                std::swap(current->id, tail->id);
-                std::swap(current->age, tail->age);
+    while (current != end)
+    {
+        if (current->id < pivot->id)
+        {
+            if (current != tail)
+            {
+                swap(current->id, tail->id);
+                swap(current->age, tail->age);
 
                 char temp[100];
                 strcpy(temp, current->name);
@@ -382,10 +385,10 @@ void managePatients::quickSort(Patient* start, Patient* end) {
         current = current->next;
     }
 
-    // Place pivot in correct position
-    if (tail != pivot) {
-        std::swap(tail->id, pivot->id);
-        std::swap(tail->age, pivot->age);
+    if (tail != pivot)
+    {
+        swap(tail->id, pivot->id);
+        swap(tail->age, pivot->age);
 
         char temp[100];
         strcpy(temp, tail->name);
@@ -401,36 +404,38 @@ void managePatients::quickSort(Patient* start, Patient* end) {
         strcpy(pivot->diagnosis, temp);
     }
 
-    // Recursively sort sub-lists
     if (start != tail)
         quickSort(start, tail);
     if (tail->next != end)
         quickSort(tail->next, end);
 }
 
-void managePatients::sortPatients() {
+void managePatients::sortPatients()
+{
     if (!head || !head->next) return;
 
-    // Find last node
     Patient* last = head;
-    while (last->next != nullptr) {
+    while (last->next != nullptr)
+    {
         last = last->next;
     }
 
-    // Call quickSort
     quickSort(head, last);
-    std::cout << "Patients sorted successfully using QuickSort!\n";
+    cout << "Patients sorted successfully using QuickSort!\n";
 }
 
-void managePatients::saveToFile() {
+void managePatients::saveToFile()
+{
     FILE* file = fopen("patients.txt", "w");
-    if(!file) {
-        printf("Error opening file for writing.\n");
+    if (!file)
+    {
+        cout << "Error opening file for writing.\n";
         return;
     }
 
     Patient* current = head;
-    while (current) {
+    while (current)
+    {
         fprintf(file, "%d\n%s\n%d\n%s\n%s\n",
                 current->id, current->name, current->age,
                 current->contact, current->diagnosis);
@@ -439,12 +444,13 @@ void managePatients::saveToFile() {
     fclose(file);
 }
 
-void managePatients::loadFromFile() {
+void managePatients::loadFromFile()
+{
     FILE* file = fopen("patients.txt", "r");
-    if(!file) return;
+    if (!file) return;
 
-    // Clear existing data
-    while (head != nullptr) {
+    while (head != nullptr)
+    {
         Patient* temp = head;
         head = head->next;
         delete temp;
@@ -452,11 +458,12 @@ void managePatients::loadFromFile() {
     cleanBST(root);
     root = nullptr;
 
-    char buffer[100];
-    while (!feof(file)) {
+    while (true)
+    {
         Patient* newPatient = new Patient();
 
-        if (fscanf(file, "%d\n", &newPatient->id) != 1) {
+        if (fscanf(file, "%d\n", &newPatient->id) != 1)
+        {
             delete newPatient;
             break;
         }
@@ -472,13 +479,16 @@ void managePatients::loadFromFile() {
         fgets(newPatient->diagnosis, 100, file);
         newPatient->diagnosis[strcspn(newPatient->diagnosis, "\n")] = 0;
 
-        // Add to linked list
         newPatient->next = nullptr;
-        if (!head) {
+        if (!head)
+        {
             head = newPatient;
-        } else {
+        }
+        else
+        {
             Patient* current = head;
-            while (current->next != nullptr) {
+            while (current->next != nullptr)
+            {
                 current = current->next;
             }
             current->next = newPatient;
@@ -491,7 +501,7 @@ void managePatients::loadFromFile() {
 
 bool managePatients::valUserInput(const char* str, int type)
 {
-    if(!str[0]) return false;
+    if (!str[0]) return false;
 
     for (int i = 0; str[i]; i++)
     {
@@ -499,12 +509,12 @@ bool managePatients::valUserInput(const char* str, int type)
         {
             if (!isdigit(str[i])) return false;
         }
-        else if (type == 2)   //alphabetic
+        else if (type == 2)  // Alphabetic
         {
             if (!isalpha(str[i]) && str[i] != ' ') return false;
         }
     }
-    return true;  // Move return true outside the loop
+    return true;
 }
 
 void managePatients::clearScreen()
