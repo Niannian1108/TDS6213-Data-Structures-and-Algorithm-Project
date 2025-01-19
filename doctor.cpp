@@ -61,23 +61,23 @@ void manageDoctors::addDoctor() {
 
 void manageDoctors::assignPatient() {
     if (!head) {
-        printf("No doctors in the system.\n");
+        cout << "No doctors in the system.\n";
         return;
     }
 
     int doctorId, patientId;
 
-    printf("Enter Doctor ID: ");
-    scanf("%d", &doctorId);
+    cout << "Enter Doctor ID: ";
+    cin >> doctorId;
 
     DoctorBSTNode* doctorNode = searchBST(root, doctorId);
     if (!doctorNode) {
-        printf("Doctor not found.\n");
+        cout << "Doctor not found.\n";
         return;
     }
 
-    printf("Enter Patient ID to assign: ");
-    scanf("%d", &patientId);
+    cout << "Enter Patient ID to assign: ";
+    cin >> patientId;
 
     // Check if patient exists
     Patient* currentPatient = patientSystem->head;
@@ -92,46 +92,43 @@ void manageDoctors::assignPatient() {
     }
 
     if (!patientFound) {
-        printf("Patient not found.\n");
+        cout << "Patient not found.\n";
         return;
     }
 
     // Check if patient is already assigned
     for (int i = 0; i < doctorNode->doctorData->patientCount; i++) {
         if (doctorNode->doctorData->assignedPatients[i] == patientId) {
-            printf("This patient is already assigned to this doctor.\n");
+            cout << "This patient is already assigned to this doctor.\n";
             return;
         }
     }
 
     // Check if doctor has reached maximum patients
     if (doctorNode->doctorData->patientCount >= MAX_PATIENTS) {
-        printf("Doctor has reached maximum patient capacity.\n");
+        cout << "Doctor has reached maximum patient capacity.\n";
         return;
     }
 
     // Add patient to doctor's list
     doctorNode->doctorData->assignedPatients[doctorNode->doctorData->patientCount++] = patientId;
-    printf("Patient %d successfully assigned to Dr. %s!\n",
-           patientId, doctorNode->doctorData->name);
+    cout << "Patient " << patientId << " successfully assigned to Dr. " << doctorNode->doctorData->name << "!\n";
     saveToFile();
 }
 
 void manageDoctors::displayDoctorPatients(int doctorId) {
     DoctorBSTNode* doctorNode = searchBST(root, doctorId);
     if (!doctorNode) {
-        printf("Doctor not found.\n");
+        cout << "Doctor not found.\n";
         return;
     }
 
-    printf("\nPatients assigned to Dr. %s:\n", doctorNode->doctorData->name);
+    cout << "\nPatients assigned to Dr. " << doctorNode->doctorData->name << ":\n";
     for (int i = 0; i < doctorNode->doctorData->patientCount; i++) {
         int patientId = doctorNode->doctorData->assignedPatients[i];
         BSTNode* patientNode = patientSystem->searchBST(patientSystem->root, patientId);
         if (patientNode) {
-            printf("ID: %d, Name: %s\n",
-                   patientNode->patientData->id,
-                   patientNode->patientData->name);
+            cout << "ID: " << patientNode->patientData->id << ", Name: " << patientNode->patientData->name << "\n";
         }
     }
 }
@@ -196,7 +193,7 @@ void manageDoctors::deleteBST(DoctorBSTNode*& node, int id) {
 void manageDoctors::saveToFile() {
     FILE* file = fopen("doctors.txt", "w");
     if (!file) {
-        printf("Error opening file for writing.\n");
+        cout << "Error opening file for writing.\n";
         return;
     }
 
@@ -293,7 +290,7 @@ void manageDoctors::editDoctor() {
 
     int choice;
     cout << "\nEnter field number to edit: ";
-    cin >> choice;
+        cin >> choice;
     cin.ignore();
 
     try {
@@ -378,29 +375,29 @@ void manageDoctors::deleteDoctor() {
 
 void manageDoctors::searchDoctor() {
     if (!head) {
-        printf("No doctors in the system.\n");
+        cout << "No doctors in the system.\n";
         return;
     }
 
     int searchId;
-    printf("Enter Doctor ID to search: ");
-    scanf("%d", &searchId);
+    cout << "Enter Doctor ID to search: ";
+    cin >> searchId;
 
     try {
         DoctorBSTNode* result = searchBST(root, searchId);
         if (result && result->doctorData) {
-            printf("\nDoctor Found:\n");
-            printf("ID: %d\n", result->doctorData->id);
-            printf("Name: %s\n", result->doctorData->name);
-            printf("Specialization: %s\n", result->doctorData->specialization);
-            printf("Contact: %s\n", result->doctorData->contact);
-            printf("Number of assigned patients: %d\n", result->doctorData->patientCount);
+            cout << "\nDoctor Found:\n";
+            cout << "ID: " << result->doctorData->id << "\n";
+            cout << "Name: " << result->doctorData->name << "\n";
+            cout << "Specialization: " << result->doctorData->specialization << "\n";
+            cout << "Contact: " << result->doctorData->contact << "\n";
+            cout << "Number of assigned patients: " << result->doctorData->patientCount << "\n";
         } else {
-            printf("Doctor not found.\n");
+            cout << "Doctor not found.\n";
         }
     }
     catch (...) {
-        printf("Error occurred while searching.\n");
+        cout << "Error occurred while searching.\n";
     }
 }
 
@@ -427,11 +424,11 @@ void manageDoctors::displayAllDoctors() {
         string contactPad = contactStr.length() < 8 ? "\t\t\t" : "\t\t";
 
         cout << current->id << "\t"
-                 << current->name << namePad
-                 << current->specialization << specPad
-                 << current->contact << contactPad;
-            cout << current->patientCount << "\n";
-                current = current->next;
+             << current->name << namePad
+             << current->specialization << specPad
+             << current->contact << contactPad;
+        cout << current->patientCount << "\n";
+        current = current->next;
     }
     cout << "--------------------------------------------------------------------------------\n";
 }
@@ -488,5 +485,5 @@ void manageDoctors::sortDoctors() {
             }
         }
     }
-    printf("Doctors sorted successfully!\n");
+    cout << "Doctors sorted successfully!\n";
 }
