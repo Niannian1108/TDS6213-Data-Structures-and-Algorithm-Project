@@ -5,10 +5,10 @@
 #include <cstring>
 #include <cctype>
 
-// Forward declaration
 class manageDoctors;
 
-struct Patient {
+struct Patient
+{
     int id;
     char name[50];
     int age;
@@ -16,14 +16,16 @@ struct Patient {
     char diagnosis[100];
     Patient* next;
 
-    Patient() : id(0), age(0), next(nullptr) {
+    Patient() : id(0), age(0), next(nullptr)
+    {
         name[0] = '\0';
         contact[0] = '\0';
         diagnosis[0] = '\0';
     }
 };
 
-struct BSTNode {
+struct BSTNode
+{
     Patient* patientData;
     BSTNode* left;
     BSTNode* right;
@@ -31,7 +33,8 @@ struct BSTNode {
     BSTNode(Patient* patient) : patientData(patient), left(nullptr), right(nullptr) {}
 };
 
-class managePatients {
+class managePatients
+{
     friend class manageDoctors;
 
 private:
