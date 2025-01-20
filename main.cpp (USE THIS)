@@ -43,7 +43,7 @@ void displayDoctorMenu()
 int main()
 {
     managePatients hospital;
-    manageDoctors doctors(&hospital);  // Pass pointer to patient system
+    manageDoctors doctors(&hospital);
     int choice, subChoice;
 
     while (true)
@@ -53,7 +53,7 @@ int main()
 
         switch (choice)
         {
-            case 1:  // Patient Management
+            case 1:
                 while (true)
                 {
                     displayPatientMenu();
@@ -80,14 +80,14 @@ int main()
                             hospital.sortPatients();
                             break;
                         case 7:
-                            goto main_menu;  // Return to main menu
+                            goto main_menu;
                         default:
                             cout << "Invalid choice. Please try again.\n";
                     }
                 }
                 break;
 
-            case 2:  // Doctor Management
+            case 2:
                 while (true)
                 {
                     displayDoctorMenu();
@@ -123,21 +123,21 @@ int main()
                             doctors.displayDoctorPatients(doctorId);
                             break;
                         case 9:
-                            goto main_menu;  // Return to main menu
+                            goto main_menu;
                         default:
                             cout << "Invalid choice. Please try again.\n";
                     }
                 }
                 break;
 
-            case 3:  // Exit
+            case 3:
                 cout << "\nThank you for using Hospital Management System!\n";
                 return 0;
 
             default:
                 cout << "Invalid choice. Please try again.\n";
         }
-        main_menu:;  // Label for returning to main menu
+        main_menu:;
     }
 
     return 0;
