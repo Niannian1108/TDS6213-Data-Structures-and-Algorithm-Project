@@ -6,16 +6,16 @@
 
 using namespace std;
 
-// Constructor to initialize empty structures and load all existing data from local file
+//initialise
 managePatients::managePatients() : head(nullptr), root(nullptr)
 {
     loadFromFile();
 }
 
-// Destructor to clean all dynamically allocated memory
+//destructor, cleans allocated memory
 managePatients::~managePatients()
 {
-    // Clean linked list
+    //clear linked list
     while (head != nullptr)
     {
         Patient* temp = head;
@@ -26,13 +26,13 @@ managePatients::~managePatients()
     cleanBST(root);
 }
 
-void managePatients::cleanBST(BSTNode* node)  // Deletes BST nodes
+void managePatients::cleanBST(BSTNode* node)
 {
     if (node)
     {
         cleanBST(node->left);
         cleanBST(node->right);
-        delete node;  // Clean left, right subtree and then current node
+        delete node;  //clean left right subtree and node
     }
 }
 
@@ -137,7 +137,7 @@ void managePatients::editPatient()
                 {
                     cout << "Enter new age: ";
                     cin >> patient->age;
-                } while (patient->age <= 0 || patient->age > 150);
+                } while (patient->age <= 0|| patient->age > 150);
                 break;
 
             case 3:
@@ -352,7 +352,7 @@ BSTNode* managePatients::searchBST(BSTNode* node, int id)
 void managePatients::quickSort(Patient* start, Patient* end)
 {
     if (start == end || start == nullptr || end == nullptr || start == end->next)
-        return;
+        return; //start=end means one or no el to sort
 
     Patient* pivot = end;
     Patient* current = start;
@@ -383,7 +383,7 @@ void managePatients::quickSort(Patient* start, Patient* end)
             tail = tail->next;
         }
         current = current->next;
-    }
+    }   //swaps values of current and tail
 
     if (tail != pivot)
     {
@@ -402,12 +402,13 @@ void managePatients::quickSort(Patient* start, Patient* end)
         strcpy(temp, tail->diagnosis);
         strcpy(tail->diagnosis, pivot->diagnosis);
         strcpy(pivot->diagnosis, temp);
-    }
+    }   //swaps values of tail and pivot
 
     if (start != tail)
         quickSort(start, tail);
     if (tail->next != end)
         quickSort(tail->next, end);
+    //recursive call
 }
 
 void managePatients::sortPatients()
@@ -421,7 +422,7 @@ void managePatients::sortPatients()
     }
 
     quickSort(head, last);
-    cout << "Patients sorted successfully using QuickSort!\n";
+    cout << "Patients sorted successfully!\n";
 }
 
 void managePatients::saveToFile()
@@ -440,7 +441,7 @@ void managePatients::saveToFile()
                 current->id, current->name, current->age,
                 current->contact, current->diagnosis);
         current = current->next;
-    }
+    }   //write into file and update ptr
     fclose(file);
 }
 
@@ -480,6 +481,8 @@ void managePatients::loadFromFile()
         newPatient->diagnosis[strcspn(newPatient->diagnosis, "\n")] = 0;
 
         newPatient->next = nullptr;
+        //get from file
+
         if (!head)
         {
             head = newPatient;
@@ -503,13 +506,13 @@ bool managePatients::valUserInput(const char* str, int type)
 {
     if (!str[0]) return false;
 
-    for (int i = 0; str[i]; i++)
+    for (int i = 0; str[i]; i++)    //valideat 1 >> numbers 2 >> alphabets
     {
-        if (type == 1)  // Numeric
+        if (type == 1)
         {
             if (!isdigit(str[i])) return false;
         }
-        else if (type == 2)  // Alphabetic
+        else if (type == 2)
         {
             if (!isalpha(str[i]) && str[i] != ' ') return false;
         }
