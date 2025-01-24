@@ -1,20 +1,8 @@
-#include <iostream>
+#include "bill.h"
+#incluie <iostream>
 #include <string>
 #include <iomanip>
 using namespace std;
-
-const int MAX_ROWS = 100;
-const int MAX_BILLS = 10;
-
-struct PatientBill {
-    string patientID;
-    string bills[MAX_BILLS];
-    float costs[MAX_BILLS];
-    int numBills;
-    float totalBill;
-    string issueDate;
-    string paidStatus;
-};
 
 void insertPatientBill(PatientBill bills[], int& currentRowCount) {
     if (currentRowCount >= MAX_ROWS) {
@@ -200,49 +188,5 @@ void viewSelectionSort(PatientBill bills[], int currentRowCount) {
         }
         cout << "Issued Bill Date: " << row.issueDate << endl;
         cout << "Paid Status: " << row.paidStatus << endl;
-    }
-}
-
-int main() { //to integrate with main.cpp
-    PatientBill bills[MAX_ROWS];
-    int currentRowCount = 0;
-
-    while (true) {
-        cout << "1. Insert Patient Bills\n";
-        cout << "2. Edit Patient Bills\n";
-        cout << "3. Delete Patient Bills\n";
-        cout << "4. View All Patient Bills\n";
-        cout << "5. Exit\n";
-        cout << "Enter your choice: ";
-        int choice;
-        cin >> choice;
-
-        switch (choice) {
-            case 1:
-                insertPatientBill(bills, currentRowCount);
-                break;
-            case 2:
-                editPatientBill(bills, currentRowCount);
-                break;
-            case 3:
-                deletePatientBill(bills, currentRowCount);
-                break;
-            case 4:
-                cout << "1. View Newest to Oldest Issued Date\n";
-                cout << "2. View Oldest to Newest Issued Date\n";
-                cout << "Enter your choice: ";
-                int sortChoice;
-                cin >> sortChoice;
-                if (sortChoice == 1) {
-                    viewDefaultSort(bills, currentRowCount);
-                } else if (sortChoice == 2) {
-                    viewSelectionSort(bills, currentRowCount);
-                }
-                break;
-            case 5:
-                return 0;
-            default:
-                cout << "Invalid choice.\n";
-        }
     }
 }
