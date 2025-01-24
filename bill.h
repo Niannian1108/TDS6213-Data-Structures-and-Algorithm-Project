@@ -1,5 +1,6 @@
 #ifndef BILL_H_INCLUDED
 #define BILL_H_INCLUDED
+#include <string>
 using namespace std;
 
 #define MAX_ROWS 100
