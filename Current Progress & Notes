@@ -1,6 +1,6 @@
 Current Progress:
 Hi, we have finished the patient and main function. 
-Unfinished: Appointment (Delete once done)
+Pending: Bills and appointment 
 
 Please refer to the rubrics to keep track of what we have not yet included.
 Add in whichever you have included. 
@@ -9,8 +9,10 @@ Add in whichever you have included.
 Patient: Linked List (1)
 Doctor: Linked List
 Finance: 2D Array (multidimensional)
+Appointment: Linked List
 
 >>At least one sorting/searching algorithm
 Patient: Binary Search Tree (Search Function), Quick sorting (Sorting Function)
 Doctor: Binary Search, Bubble Sort
 Finance: Selection Sort (Oldest to Newest Issued Bill Date)
+Appointment: Merge Sort
