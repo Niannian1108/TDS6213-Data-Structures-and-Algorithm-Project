@@ -1,16 +1,19 @@
 #include "patient.h"
 #include "doctor.h"
+#include "appointment.h"
 #include "bill.h"
 #include <iostream>
 using namespace std;
 
-void displayMainMenu()
-{
+
+// Modify the main menu to include appointments
+void displayMainMenu() {
     cout << "\n=== Hospital Management System ===\n";
     cout << "1. Patient Management\n";
     cout << "2. Doctor Management\n";
     cout << "3. Patient Bills\n";
-    cout << "4. Exit\n";
+    cout << "4. Appointment Management\n";  // New option
+    cout << "5. Exit\n";
     cout << "Enter your choice: ";
 }
 
@@ -42,6 +45,19 @@ void displayDoctorMenu()
     cout << "Enter your choice: ";
 }
 
+//Appointment menu
+void displayAppointmentMenu()
+{
+    cout << "\n=== Appointment Management ===\n";
+    cout << "1. Create New Appointment\n";
+    cout << "2. Display All Appointments\n";
+    cout << "3. Cancel Appointment\n";
+    cout << "4. Update Appointment Status\n";
+    cout << "5. Search Appointment\n";
+    cout << "6. Return to Main Menu\n";
+    cout << "Enter your choice: ";
+}
+
 void displayFinanceMenu()
 {
     cout << "1. Insert Patient Bills\n";
@@ -52,30 +68,26 @@ void displayFinanceMenu()
     cout << "Enter your choice: ";
 }
 
-
-int main()
-{
+int main() {
     managePatients hospital;
     manageDoctors doctors(&hospital);
+    manageAppointments appointments(&doctors, &hospital);  // Add this line
     int choice, subChoice;
     PatientBill bills[MAX_ROWS];
     int currentRowCount = 0;
 
-    while (true)
-    {
+
+    while (true) {
         displayMainMenu();
-        std::cin >> choice;
+        cin >> choice;
 
-        switch (choice)
-        {
+        switch (choice) {
             case 1:
-                while (true)
-                {
+                while (true) {
                     displayPatientMenu();
-                    std::cin >> subChoice;
+                    cin >> subChoice;
 
-                    switch (subChoice)
-                    {
+                    switch (subChoice) {
                         case 1:
                             hospital.addPatient();
                             break;
@@ -103,13 +115,11 @@ int main()
                 break;
 
             case 2:
-                while (true)
-                {
+                while (true) {
                     displayDoctorMenu();
-                    std::cin >> subChoice;
+                    cin >> subChoice;
 
-                    switch (subChoice)
-                    {
+                    switch (subChoice) {
                         case 1:
                             doctors.addDoctor();
                             break;
@@ -134,7 +144,7 @@ int main()
                         case 8:
                             int doctorId;
                             cout << "Enter Doctor ID: ";
-                            std::cin >> doctorId;
+                            cin >> doctorId;
                             doctors.displayDoctorPatients(doctorId);
                             break;
                         case 9:
@@ -145,7 +155,7 @@ int main()
                 }
                 break;
 
-            case 3:
+                case 3:
                 while (true)
                     {
                         displayFinanceMenu();
@@ -181,13 +191,45 @@ int main()
                     }
                     break;
 
+            // Add this new case for appointment management
             case 4:
+                while (true) {
+                    displayAppointmentMenu();
+                    cin >> subChoice;
+
+                    switch (subChoice) {
+                        case 1:
+                            appointments.createAppointment();
+                            break;
+                        case 2:
+                            appointments.displayAppointments();
+                            break;
+                        case 3:
+                            appointments.cancelAppointment();
+                            break;
+                        case 4:
+                            appointments.updateAppointmentStatus();
+                            break;
+                        case 5:
+                            appointments.searchAppointment();
+                            break;
+                        case 6:
+                            goto main_menu;
+                        default:
+                            cout << "Invalid choice. Please try again.\n";
+                    }
+                }
+                break;
+
+            case 5:  // Changed from case 3 to case 4
                 cout << "\nThank you for using Hospital Management System!\n";
+                return 0;
 
             default:
                 cout << "Invalid choice. Please try again.\n";
         }
         main_menu:;
     }
+
     return 0;
 }
