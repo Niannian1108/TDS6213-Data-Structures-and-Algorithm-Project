@@ -34,6 +34,8 @@ struct DoctorBSTNode
 
 class manageDoctors
 {
+        friend class manageAppointments;
+
 private:
     Doctor* head;
     DoctorBSTNode* root;
