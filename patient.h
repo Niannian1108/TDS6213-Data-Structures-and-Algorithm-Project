@@ -36,6 +36,7 @@ struct BSTNode
 class managePatients
 {
     friend class manageDoctors;
+    friend class manageAppointments;
 
 private:
     Patient* head;
