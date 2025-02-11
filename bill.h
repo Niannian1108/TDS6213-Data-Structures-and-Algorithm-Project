@@ -22,4 +22,4 @@ void deletePatientBill(PatientBill bills[], int &currentRowCount);
 void viewDefaultSort(PatientBill bills[], int currentRowCount);
 void viewSelectionSort(PatientBill bills[], int currentRowCount);
 
-#endif // BILL_H_INCLUDED
+#endif
