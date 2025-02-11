@@ -306,7 +306,7 @@ bool manageAppointments::hasPatientAppointment(int patientId, const char* date, 
     return false;
 }
 
-// Main Operations which is create appointment
+//Main Operations which is create appointment
 
 //This function is use to create the appointment as well
 void manageAppointments::createAppointment()
