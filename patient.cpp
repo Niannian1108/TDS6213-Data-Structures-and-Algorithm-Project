@@ -351,64 +351,113 @@ BSTNode* managePatients::searchBST(BSTNode* node, int id)
 
 void managePatients::quickSort(Patient* start, Patient* end)
 {
+    //base: if start and end are same, one element, or empty, no sorting needed
     if (start == end || start == nullptr || end == nullptr || start == end->next)
-        return; //start=end means one or no el to sort
+        return;
 
-    Patient* pivot = end;
-    Patient* current = start;
-    Patient* tail = start;
+    //find last pt
+    Patient* last = start;
+    while (last->next != end->next)
+        last = last->next;
 
-    while (current != end)
+    //partitioning with pivot
+    auto partition = [](Patient* low, Patient* high) -> Patient*
     {
-        if (current->id < pivot->id)
+        Patient* pivot = high;  //choose last element as pivot
+        Patient* i = nullptr;   //tracks boundary of elem. smaller than the pivot
+        Patient* j = low;       //iterated thru the list
+
+        while (j != high)
         {
-            if (current != tail)
+            //if the current elem. smaller or eq to pivot
+            if (j->id <= pivot->id)
             {
-                swap(current->id, tail->id);
-                swap(current->age, tail->age);
+                //move i infront
+                i = (i == nullptr) ? low : i->next;
 
-                char temp[100];
-                strcpy(temp, current->name);
-                strcpy(current->name, tail->name);
-                strcpy(tail->name, temp);
+                //swapping
+                if (i != j)
+                {
+                    std::swap(i->id, j->id);
+                    std::swap(i->age, j->age);
 
-                strcpy(temp, current->contact);
-                strcpy(current->contact, tail->contact);
-                strcpy(tail->contact, temp);
+                    //swapping strings
+                    char tempName[50];
+                    strcpy(tempName, i->name);
+                    strcpy(i->name, j->name);
+                    strcpy(j->name, tempName);
 
-                strcpy(temp, current->diagnosis);
-                strcpy(current->diagnosis, tail->diagnosis);
-                strcpy(tail->diagnosis, temp);
+                    char tempContact[15];
+                    strcpy(tempContact, i->contact);
+                    strcpy(i->contact, j->contact);
+                    strcpy(j->contact, tempContact);
+
+                    char tempDiagnosis[100];
+                    strcpy(tempDiagnosis, i->diagnosis);
+                    strcpy(i->diagnosis, j->diagnosis);
+                    strcpy(j->diagnosis, tempDiagnosis);
+                }
             }
-            tail = tail->next;
+            j = j->next;
         }
-        current = current->next;
-    }   //swaps values of current and tail
 
-    if (tail != pivot)
+        //sort pivot
+        i = (i == nullptr) ? low : i->next;
+
+        //pivot swap with i
+        std::swap(i->id, high->id);
+        std::swap(i->age, high->age);
+
+        char tempName[50];
+        strcpy(tempName, i->name);
+        strcpy(i->name, high->name);
+        strcpy(high->name, tempName);
+
+        char tempContact[15];
+        strcpy(tempContact, i->contact);
+        strcpy(i->contact, high->contact);
+        strcpy(high->contact, tempContact);
+
+        char tempDiagnosis[100];
+        strcpy(tempDiagnosis, i->diagnosis);
+        strcpy(i->diagnosis, high->diagnosis);
+        strcpy(high->diagnosis, tempDiagnosis);
+
+        return i;
+    };
+
+    auto quickSortInternal = [&](Patient* low, Patient* high)
     {
-        swap(tail->id, pivot->id);
-        swap(tail->age, pivot->age);
+        if (low != high && low != nullptr && high != nullptr && low != high->next)
+        {
+            //partitioning and get the pivot point
+            Patient* pivotPoint = partition(low, high);
 
-        char temp[100];
-        strcpy(temp, tail->name);
-        strcpy(tail->name, pivot->name);
-        strcpy(pivot->name, temp);
+            //locate nodes b4 & after pivot point for recursive call
+            Patient* beforePivot = nullptr;
+            Patient* current = low;
+            while (current != pivotPoint)
+            {
+                beforePivot = current;
+                current = current->next;
+            }
 
-        strcpy(temp, tail->contact);
-        strcpy(tail->contact, pivot->contact);
-        strcpy(pivot->contact, temp);
+            //recursive sort left part
+            if (beforePivot != nullptr)
+                quickSort(low, beforePivot);
 
-        strcpy(temp, tail->diagnosis);
-        strcpy(tail->diagnosis, pivot->diagnosis);
-        strcpy(pivot->diagnosis, temp);
-    }   //swaps values of tail and pivot
+            //find start of right part
+            Patient* afterPivot = pivotPoint;
+            while (afterPivot->next != high->next)
+                afterPivot = afterPivot->next;
 
-    if (start != tail)
-        quickSort(start, tail);
-    if (tail->next != end)
-        quickSort(tail->next, end);
-    //recursive call
+            //recursive sort right part
+            if (afterPivot->next != high)
+                quickSort(afterPivot->next, high);
+        }
+    };
+
+    quickSortInternal(start, end);
 }
 
 void managePatients::sortPatients()
